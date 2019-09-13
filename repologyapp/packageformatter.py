@@ -25,9 +25,11 @@ from repology.package import Package
 __all__ = ['PackageFormatter']
 
 
-def _guixlocation2github(s: str) -> str:
-    path, lineno = s.split(':', 1)  # e.g. gnu/packages/java.scm:2573
-    return '{}#n{}'.format(path, int(lineno) - 1)  # not sure why's the difference by one
+def _safe_int(arg: str) -> int:
+    try:
+        return int(arg)
+    except ValueError:
+        return 0
 
 
 class PackageFormatter(string.Formatter):
@@ -36,7 +38,8 @@ class PackageFormatter(string.Formatter):
         'firstletter': lambda x: x.lower()[0],
         'libfirstletter': lambda x: x.lower()[:4] if x.lower().startswith('lib') else x.lower()[0],
         'stripdmo': lambda x: x[:-4] if x.endswith('-dmo') else x,
-        'guixlocation2github': _guixlocation2github,
+        'dec': lambda x: str(_safe_int(x) - 1),
+        'inc': lambda x: str(_safe_int(x) + 1),
     }
 
     _escape_mode: Optional[str]
